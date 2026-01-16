@@ -1,6 +1,7 @@
 from django.db.models import Manager, QuerySet
-from returns.result import safe
+from returns.future import future_safe
 from returns.maybe import maybe
+from returns.result import safe
 
 
 class ReturnsQueryset(QuerySet):
@@ -13,6 +14,9 @@ class ReturnsQueryset(QuerySet):
             base_method = name[:-5]
             if hasattr(self, base_method):
                 original_method = getattr(self, base_method)
+                if base_method.startswith("a"):
+                    # Async method
+                    return future_safe(original_method)
                 return safe(original_method)
 
         raise AttributeError(f"{self.__class__.__name__} has no attribute {name}")
