@@ -30,11 +30,13 @@ class ReturnsManager(Manager):
     """Manager implementation that uses ReturnsQueryset
     and includes new methods that return Result instead of raising exceptions.
     """
-    
+
     def get_queryset(self):
         return ReturnsQueryset(self.model, using=self._db)
-    
+
     def __getattr__(self, name):
-        if name.startswith('_'):
-            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+        if name.startswith("_"):
+            raise AttributeError(
+                f"'{type(self).__name__}' object has no attribute '{name}'"
+            )
         return getattr(self.get_queryset(), name)

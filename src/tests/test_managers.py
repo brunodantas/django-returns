@@ -161,27 +161,27 @@ class TestMaybeMethods:
     def test_first_maybe_some(self):
         obj1 = TestModel.objects.create(name="test1", dob=date(2020, 1, 1))
         TestModel.objects.create(name="test2", dob=date(2021, 1, 1))
-        
+
         result = TestModel.objects.first_maybe()
-        
+
         assert isinstance(result, Some)
         assert result.unwrap() == obj1
-    
+
     def test_first_maybe_nothing(self):
         result = TestModel.objects.first_maybe()
-        
+
         assert result == Nothing
-    
+
     def test_last_maybe_some(self):
         TestModel.objects.create(name="test1", dob=date(2020, 1, 1))
         obj2 = TestModel.objects.create(name="test2", dob=date(2021, 1, 1))
-        
+
         result = TestModel.objects.last_maybe()
-        
+
         assert isinstance(result, Some)
         assert result.unwrap() == obj2
-    
+
     def test_last_maybe_nothing(self):
         result = TestModel.objects.last_maybe()
-        
+
         assert result == Nothing

@@ -17,7 +17,7 @@ class TestModel(models.Model):
 
 class Author(ReturnsModel):
     name = models.CharField(max_length=100, unique=True)
-    
+
     class Meta:
         app_label = "tests"
 
@@ -25,17 +25,17 @@ class Author(ReturnsModel):
 class Book(ReturnsModel):
     title = models.CharField(max_length=200)
     author = models.ForeignKey(Author, on_delete=models.PROTECT, related_name="books")
-    
+
     class Meta:
         app_label = "tests"
 
 
 class ValidatedModel(ReturnsModel):
     value = models.IntegerField()
-    
+
     class Meta:
         app_label = "tests"
-    
+
     def clean(self):
         if self.value < 0:
             raise ValidationError("Value cannot be negative")

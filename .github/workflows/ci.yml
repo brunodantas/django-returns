@@ -29,12 +29,11 @@ jobs:
       
       - name: Run ruff check
         run: |
-          uv run ruff check src/ tests/
+          uv run ruff check src/ src/tests/
       
       - name: Run ruff format check
         run: |
-          uv run ruff format --check src/ tests/
-
+          uv run ruff format --check src/ src/tests/
   test:
     name: Test (Python ${{ matrix.python-version }}, Django ${{ matrix.django-version }})
     runs-on: ubuntu-latest

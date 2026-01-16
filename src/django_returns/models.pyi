@@ -1,7 +1,6 @@
 from django.db import models
 from returns.result import Result
 
-
 class ReturnsModel(models.Model):
     """Model base class that provides safe methods via returns."""
 

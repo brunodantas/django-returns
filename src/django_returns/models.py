@@ -19,4 +19,6 @@ class ReturnsModel(models.Model):
                 original_method = getattr(self, base_method)
                 return safe(original_method)
 
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+        raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
