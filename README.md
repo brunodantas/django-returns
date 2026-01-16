@@ -1,5 +1,5 @@
 # django-returns
 
-Meaningful, typed, safe Django utils
+Meaningful Django utils based on Functional Programming.
 
-Compatible with [`returns`](https://returns.readthedocs.io/en/latest/)
+> Made possible by [`returns`](https://returns.readthedocs.io/en/latest/)
