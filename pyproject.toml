@@ -7,7 +7,9 @@ authors = [
     { name = "brunodantas", email = "bruno.welldm@gmail.com" }
 ]
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "returns>=0.26.0",
+]
 
 [build-system]
 requires = ["uv_build>=0.9.0,<0.10.0"]
@@ -17,5 +19,11 @@ build-backend = "uv_build"
 dev = [
     "django>=4.2",
     "mypy>=1.19.1",
-    "returns>=0.26.0",
+    "pytest>=9.0.2",
+    "pytest-django>=4.11.1",
+    "ruff>=0.14.13",
 ]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+python_files = ["test_*.py"]
