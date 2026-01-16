@@ -1,5 +1,4 @@
 import pytest
-from returns.pipeline import pipe
 from returns.result import Failure, Success
 
 from django_returns.utils import getattr_safe
