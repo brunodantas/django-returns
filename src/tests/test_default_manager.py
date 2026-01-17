@@ -227,9 +227,7 @@ class TestAsyncEarliestLatestMethods:
 
     async def test_alatest_safe_success(self):
         await Person.objects.acreate(name="async_latest1", dob=date(2020, 1, 1))
-        obj2 = await Person.objects.acreate(
-            name="async_latest2", dob=date(2021, 1, 1)
-        )
+        obj2 = await Person.objects.acreate(name="async_latest2", dob=date(2021, 1, 1))
 
         result = await Person.objects.alatest_safe("dob")
 
