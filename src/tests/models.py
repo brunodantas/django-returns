@@ -5,7 +5,7 @@ from django_returns.managers import ReturnsManager
 from django_returns.models import ReturnsModel
 
 
-class TestModel(models.Model):
+class Person(models.Model):
     name = models.CharField(max_length=100, unique=True)
     dob = models.DateField()
 
