@@ -1,27 +1,28 @@
 name: Publish
 
 on:
-  workflow_run:
-    workflows:
-      - CI
+  release:
     types:
-      - completed
-    branches:
-      - main
+      - published
 
 concurrency:
-  group: publish-${{ github.event.workflow_run.head_sha }}
+  group: publish-${{ github.event.release.tag_name }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build distributions
-    if: github.event.workflow_run.conclusion == 'success'
+  publish:
+    name: Publish to PyPI
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment:
+      name: pypi
+      url: https://pypi.org/project/django-returns/
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event.release.tag_name }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -34,47 +35,8 @@ jobs:
       - name: Build sdist and wheel
         run: uv build
 
-      - name: Upload dist artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/
-
-  publish:
-    name: Publish to PyPI
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    environment:
-      name: pypi
-      url: https://pypi.org/project/django-returns/
-    steps:
-      - name: Download dist artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
-
-      - name: Check if version already exists on PyPI
-        shell: bash
-        run: |
-          set -euo pipefail
-          wheel_file="$(ls -1 dist/*.whl | head -n 1)"
-          wheel_base="$(basename "$wheel_file")"
-          version="$(echo "$wheel_base" | cut -d- -f2)"
-
-          echo "Detected version: $version"
-
-          if curl -fsSL "https://pypi.org/pypi/django-returns/${version}/json" >/dev/null; then
-            echo "Version ${version} already exists on PyPI; skipping publish."
-            echo "SKIP_PUBLISH=true" >> "$GITHUB_ENV"
-          else
-            echo "Version ${version} not found on PyPI; will publish."
-          fi
-
       - name: Publish
-        if: env.SKIP_PUBLISH != 'true'
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
 

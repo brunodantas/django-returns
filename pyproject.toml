@@ -1,14 +1,48 @@
 [project]
 name = "django-returns"
-version = "0.1.0"
+version = "0.1.1"
 description = "Meaningful, typed, safe Django utils"
 readme = "README.md"
+license = { file = "LICENSE" }
 authors = [
     { name = "brunodantas", email = "bruno.welldm@gmail.com" }
 ]
 requires-python = ">=3.10"
 dependencies = [
+    "Django>=4.2",
     "returns>=0.26.0",
+]
+
+keywords = ["django", "orm", "functional-programming", "monads", "returns", "result", "maybe", "railway-oriented-programming"]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/brunodantas/django-returns"
+Repository = "https://github.com/brunodantas/django-returns"
+Issues = "https://github.com/brunodantas/django-returns/issues"
+
+[project.optional-dependencies]
+dev = [
+    "django-stubs>=5.2.8",
+    "mypy>=1.19.1",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "pytest-django>=4.11.1",
+    "ruff>=0.14.13",
 ]
 
 [build-system]
@@ -17,7 +51,6 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
-    "django>=4.2",
     "django-stubs>=5.2.8",
     "ipython>=8.38.0",
     "mypy>=1.19.1",
