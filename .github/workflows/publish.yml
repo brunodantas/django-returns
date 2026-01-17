@@ -1,17 +1,22 @@
 name: Publish
 
 on:
-  release:
+  workflow_run:
+    workflows:
+      - GitHub Release
     types:
-      - published
+      - completed
+    branches:
+      - main
 
 concurrency:
-  group: publish-${{ github.event.release.tag_name }}
+  group: publish-${{ github.event.workflow_run.head_sha }}
   cancel-in-progress: true
 
 jobs:
   publish:
     name: Publish to PyPI
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -22,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
