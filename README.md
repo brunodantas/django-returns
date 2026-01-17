@@ -3,7 +3,7 @@
 ![CI](https://github.com/brunodantas/django-returns/actions/workflows/ci.yml/badge.svg)
 [![PyPI](https://img.shields.io/pypi/v/django-returns)](https://pypi.org/project/django-returns/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-returns)](https://pypi.org/project/django-returns/)
-[![License](https://img.shields.io/pypi/l/django-returns)](https://pypi.org/project/django-returns/)
+![Django](https://img.shields.io/badge/django-4.2%20%7C%205.2%20%7C%206.0-0C4B33)
 
 Meaningful Django utils based on Functional Programming.
 
