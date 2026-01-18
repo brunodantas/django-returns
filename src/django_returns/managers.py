@@ -1,3 +1,5 @@
+from typing import Literal
+
 from django.db.models import Manager, QuerySet
 from returns.future import future_safe
 from returns.io import impure_safe
@@ -34,7 +36,7 @@ class MaybeReturnsQuerySet(BaseReturnsQuerySet):
 
 
 class SafeReturnsQuerySet(MaybeReturnsQuerySet):
-    """A subclass that overrides unsafe methods
+    """Experimental: a subclass that overrides unsafe methods
     to return Result instead of raising exceptions.
     """
 
@@ -47,7 +49,7 @@ class SafeReturnsQuerySet(MaybeReturnsQuerySet):
 
 
 class ImpureReturnsQuerySet(MaybeReturnsQuerySet):
-    """A subclass that overrides unsafe methods
+    """Experimental: a subclass that overrides unsafe methods
     to return IOResult instead of raising exceptions.
     """
 
@@ -63,18 +65,22 @@ class IncrementedReturnsQuerySet(BaseReturnsQuerySet):
     """A subclass that includes safe versions (ending with _safe)
     of unsafe methods that can be used separately from the original methods."""
 
-    def __getattr__(self, name):
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
         """Dynamically provide safe versions of QuerySet methods."""
-        if name.endswith("_safe"):
-            base_method = name[:-5]
-            if hasattr(self, base_method):
-                original_method = getattr(self, base_method)
-                if base_method.startswith("a"):
-                    # Async method
-                    return future_safe(original_method)
-                return safe(original_method)
+        super().__init__(*args, **kwargs)
 
-        raise AttributeError(f"{self.__class__.__name__} has no attribute {name}")
+        for name in BaseReturnsQuerySet.UNSAFE_METHODS:
+            # Apply for sync and async versions
+            for prefix in ("", "a"):
+                method_name = prefix + name
+                original_method = getattr(self, method_name)
+                new_method_name = method_name + ("_result" if prefix == "" else "_ioresult")
+                wrapper = safe if prefix == "" else future_safe
+                setattr(self, new_method_name, wrapper(original_method))
 
     @maybe
     def first_maybe(self, *args, **kwargs):
@@ -91,16 +97,18 @@ class ReturnsManager(Manager):
     """
 
     def __init__(
-        self, override_with_safe=False, override_with_impure=False, *args, **kwargs
+        self,
+        override_with: Literal["safe", "impure", None] = None,
+        *args,
+        **kwargs,
     ):
-        self._override_with_safe = override_with_safe
-        self._override_with_impure = override_with_impure
+        self._override_with = override_with
         super().__init__(*args, **kwargs)
 
     def get_queryset(self):
-        if self._override_with_safe:
+        if self._override_with == "safe":
             return SafeReturnsQuerySet(self.model, using=self._db)
-        if self._override_with_impure:
+        if self._override_with == "impure":
             return ImpureReturnsQuerySet(self.model, using=self._db)
 
         return IncrementedReturnsQuerySet(self.model, using=self._db)
