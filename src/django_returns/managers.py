@@ -61,7 +61,7 @@ class ImpureReturnsQuerySet(MaybeReturnsQuerySet):
             setattr(self, method_name, impure_safe_method)
 
 
-class IncrementedReturnsQuerySet(BaseReturnsQuerySet):
+class ExtendedReturnsQuerySet(BaseReturnsQuerySet):
     """A subclass that includes safe versions (ending with _safe)
     of unsafe methods that can be used separately from the original methods."""
 
@@ -95,7 +95,7 @@ class IncrementedReturnsQuerySet(BaseReturnsQuerySet):
 
 class ReturnsManager(Manager):
     """Manager that selects a QuerySet according to init params
-    and defaults to IncrementedReturnsQuerySet.
+    and defaults to ExtendedReturnsQuerySet.
     """
 
     def __init__(
@@ -113,7 +113,7 @@ class ReturnsManager(Manager):
         if self._override_with == "impure":
             return ImpureReturnsQuerySet(self.model, using=self._db)
 
-        return IncrementedReturnsQuerySet(self.model, using=self._db)
+        return ExtendedReturnsQuerySet(self.model, using=self._db)
 
     def __getattr__(self, name):
         if name.startswith("_"):

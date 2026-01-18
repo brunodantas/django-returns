@@ -53,7 +53,7 @@ class ImpureReturnsQuerySet(MaybeReturnsQuerySet[_M]):
     ) -> IOResult[tuple[int, dict[str, int]], Exception]: ...
     def bulk_create(self, *args, **kwargs) -> IOResult[list[_M], Exception]: ...
 
-class IncrementedReturnsQuerySet(BaseReturnsQuerySet[_M]):
+class ExtendedReturnsQuerySet(BaseReturnsQuerySet[_M]):
     """A subclass that includes safe versions (ending with _result or _ioresult)
     of unsafe methods that can be used separately from the original methods.
     """
@@ -98,7 +98,7 @@ class IncrementedReturnsQuerySet(BaseReturnsQuerySet[_M]):
 
 class ReturnsManager(Manager[_M]):
     """Manager that selects a QuerySet according to init params
-    and defaults to IncrementedReturnsQuerySet.
+    and defaults to ExtendedReturnsQuerySet.
     """
     def __init__(
         self,
@@ -110,7 +110,7 @@ class ReturnsManager(Manager[_M]):
     def get_queryset(
         self,
     ) -> (
-        IncrementedReturnsQuerySet[_M]
+        ExtendedReturnsQuerySet[_M]
         | SafeReturnsQuerySet[_M]
         | ImpureReturnsQuerySet[_M]
     ): ...
