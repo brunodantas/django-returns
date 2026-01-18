@@ -159,6 +159,95 @@ class TestBulkCreateMethods:
 
 
 @pytest.mark.django_db
+class TestSyncIOResultMethods:
+    """Test sync methods that return IOResult (using impure_safe)."""
+
+    def test_get_ioresult_success(self):
+        obj = Person.objects.create(name="io_test", dob=date(2020, 1, 1))
+        io_result = Person.objects.get_ioresult(name="io_test")
+
+        assert isinstance(io_result, IOSuccess)
+        result = unsafe_perform_io(io_result)
+        assert isinstance(result, Success)
+        assert result.unwrap() == obj
+
+    def test_get_ioresult_failure(self):
+        io_result = Person.objects.get_ioresult(name="nonexistent")
+
+        assert isinstance(io_result, IOFailure)
+        result = unsafe_perform_io(io_result)
+        assert isinstance(result, Failure)
+        assert isinstance(result.failure(), Person.DoesNotExist)
+
+    def test_create_ioresult_success(self):
+        io_result = Person.objects.create_ioresult(
+            name="io_create", dob=date(2020, 1, 1)
+        )
+
+        assert isinstance(io_result, IOSuccess)
+        result = unsafe_perform_io(io_result)
+        assert isinstance(result, Success)
+        obj = result.unwrap()
+        assert obj.name == "io_create"
+        assert Person.objects.count() == 1
+
+    def test_create_ioresult_failure(self):
+        Person.objects.create(name="duplicate", dob=date(2020, 1, 1))
+        io_result = Person.objects.create_ioresult(
+            name="duplicate", dob=date(2021, 1, 1)
+        )
+
+        assert isinstance(io_result, IOFailure)
+        result = unsafe_perform_io(io_result)
+        assert isinstance(result, Failure)
+        assert isinstance(result.failure(), IntegrityError)
+
+    def test_earliest_ioresult_success(self):
+        obj1 = Person.objects.create(name="io_earliest1", dob=date(2020, 1, 1))
+        Person.objects.create(name="io_earliest2", dob=date(2021, 1, 1))
+
+        io_result = Person.objects.earliest_ioresult("dob")
+
+        assert isinstance(io_result, IOSuccess)
+        result = unsafe_perform_io(io_result)
+        assert result.unwrap() == obj1
+
+    def test_latest_ioresult_success(self):
+        Person.objects.create(name="io_latest1", dob=date(2020, 1, 1))
+        obj2 = Person.objects.create(name="io_latest2", dob=date(2021, 1, 1))
+
+        io_result = Person.objects.latest_ioresult("dob")
+
+        assert isinstance(io_result, IOSuccess)
+        result = unsafe_perform_io(io_result)
+        assert result.unwrap() == obj2
+
+    def test_delete_ioresult_success(self):
+        Person.objects.create(name="io_delete1", dob=date(2020, 1, 1))
+        Person.objects.create(name="io_delete2", dob=date(2021, 1, 1))
+
+        io_result = Person.objects.filter(name="io_delete1").delete_ioresult()
+
+        assert isinstance(io_result, IOSuccess)
+        result = unsafe_perform_io(io_result)
+        assert isinstance(result, Success)
+        assert Person.objects.count() == 1
+
+    def test_bulk_create_ioresult_success(self):
+        objects = [
+            Person(name="io_bulk1", dob=date(2020, 1, 1)),
+            Person(name="io_bulk2", dob=date(2021, 1, 1)),
+        ]
+
+        io_result = Person.objects.bulk_create_ioresult(objects)
+
+        assert isinstance(io_result, IOSuccess)
+        result = unsafe_perform_io(io_result)
+        assert isinstance(result, Success)
+        assert Person.objects.count() == 2
+
+
+@pytest.mark.django_db
 class TestMaybeMethods:
     def test_first_maybe_some(self):
         obj1 = Person.objects.create(name="test1", dob=date(2020, 1, 1))
@@ -191,7 +280,9 @@ class TestMaybeMethods:
 
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.asyncio
-class TestAsyncGetMethods:
+class TestAsyncIOResultMethods:
+    """Test async methods that return FutureResult -> IOResult (using future_safe)."""
+
     async def test_aget_ioresult_success(self):
         obj = await Person.objects.acreate(name="async_test", dob=date(2020, 1, 1))
         result = await Person.objects.aget_ioresult(name="async_test")
@@ -205,10 +296,6 @@ class TestAsyncGetMethods:
         assert isinstance(result, IOFailure)
         assert isinstance(unsafe_perform_io(result).failure(), Person.DoesNotExist)
 
-
-@pytest.mark.django_db(transaction=True)
-@pytest.mark.asyncio
-class TestAsyncEarliestLatestMethods:
     async def test_aearliest_ioresult_success(self):
         obj1 = await Person.objects.acreate(
             name="async_earliest1", dob=date(2020, 1, 1)
@@ -261,10 +348,6 @@ class TestAsyncCreateMethods:
         assert isinstance(result, IOFailure)
         assert isinstance(unsafe_perform_io(result).failure(), IntegrityError)
 
-
-@pytest.mark.django_db(transaction=True)
-@pytest.mark.asyncio
-class TestAsyncGetOrCreateMethods:
     async def test_aget_or_create_ioresult_get(self):
         existing = await Person.objects.acreate(
             name="existing_async", dob=date(2020, 1, 1)
@@ -288,10 +371,6 @@ class TestAsyncGetOrCreateMethods:
         assert obj.name == "new_async"
         assert created is True
 
-
-@pytest.mark.django_db(transaction=True)
-@pytest.mark.asyncio
-class TestAsyncUpdateOrCreateMethods:
     async def test_aupdate_or_create_ioresult_update(self):
         existing = await Person.objects.acreate(
             name="update_me_async", dob=date(2020, 1, 1)
@@ -316,10 +395,6 @@ class TestAsyncUpdateOrCreateMethods:
         assert obj.name == "create_new_async"
         assert created is True
 
-
-@pytest.mark.django_db(transaction=True)
-@pytest.mark.asyncio
-class TestAsyncDeleteMethods:
     async def test_adelete_ioresult_success(self):
         await Person.objects.acreate(name="delete1_async", dob=date(2020, 1, 1))
         await Person.objects.acreate(name="delete2_async", dob=date(2021, 1, 1))
@@ -329,10 +404,6 @@ class TestAsyncDeleteMethods:
         deleted_count, _ = unsafe_perform_io(result).unwrap()
         assert deleted_count == 1
 
-
-@pytest.mark.django_db(transaction=True)
-@pytest.mark.asyncio
-class TestAsyncBulkCreateMethods:
     async def test_abulk_create_ioresult_success(self):
         objects = [
             Person(name="bulk1_async", dob=date(2020, 1, 1)),
