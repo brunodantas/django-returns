@@ -19,14 +19,13 @@ instead of exceptions.
 
 By subclassing `QuerySet` and applying `returns` decorators to its methods.
 
-Note: the default `ReturnsManager` does **not** change Django semantics. It keeps the original methods intact and adds new ones.
+Note: the default `ReturnsManager` does **not** change Django semantics. It keeps the original methods intact and adds new ones:
 
-- `*_result` variants for exception-raising operations (return `Success` / `Failure`)
-- `first_maybe()` / `last_maybe()` for “might be empty” queries (return `Some` / `Nothing`)
-- async `*_ioresult` variants which return an IO-wrapped `Result` and can be unwrapped
-  with `django_returns.utils.unsafe_perform_io`
+- `*_result` variants for sync operations (return `Success` / `Failure`)
+- `*_ioresult` variants for both sync and async operations (return `IOSuccess` / `IOFailure`)
+- `first_maybe()` / `last_maybe()` for "might be `None`" QS methods (return `Some` / `Nothing`)
 
-### Opt-in Safety With `*_result` / `*_ioresult`
+### Opt-in Safe ORM
 
 Enable it by using the provided base model.
 
@@ -55,8 +54,6 @@ Methods with the `_result` suffix return `returns.result.Result`.
 ```python
 from returns.result import Failure, Result, Success
 
-from .models import Person
-
 
 def get_person_name(person_id):
     result: Result = Person.objects.get_result(id=person_id)
@@ -68,15 +65,13 @@ def get_person_name(person_id):
             return ""
 ```
 
-## Async Methods
+## IO Methods
 
-Async `*_ioresult` methods return an IO-wrapped result (`IOSuccess` / `IOFailure`).
+Async/IO `*_ioresult` methods return an IO-wrapped result (`IOSuccess` / `IOFailure`).
 
 ```python
-from django_returns.utils import unsafe_perform_io
+from returns.io import unsafe_perform_io
 from returns.result import Failure, Success
-
-from .models import Person
 
 
 async def get_person_id_async(name):
