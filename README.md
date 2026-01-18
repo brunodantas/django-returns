@@ -19,14 +19,14 @@ instead of exceptions.
 
 By subclassing `QuerySet` and applying `returns` decorators to its methods.
 
-Note: the default `ReturnsManager` does **not** change Django semantics. It keeps the original methods intact and adds new ones:
+Note: the default `ReturnsManager` does **not** change Django semantics. It keeps the original methods intact and adds new ones.
 
-- `*_safe` variants for exception-raising operations (return `Success` / `Failure`)
+- `*_result` variants for exception-raising operations (return `Success` / `Failure`)
 - `first_maybe()` / `last_maybe()` for “might be empty” queries (return `Some` / `Nothing`)
-- async `*_safe` variants which return an IO-wrapped `Result` and can be unwrapped
+- async `*_ioresult` variants which return an IO-wrapped `Result` and can be unwrapped
   with `django_returns.utils.unsafe_perform_io`
 
-### Opt-in Safety With `*_safe` Suffix
+### Opt-in Safety With `*_result` / `*_ioresult`
 
 Enable it by using the provided base model.
 
@@ -50,16 +50,16 @@ class Person(models.Model):
 
 ## Basic Usage
 
-Methods with the `_safe` suffix return `returns.result.Result`.
+Methods with the `_result` suffix return `returns.result.Result`.
 
 ```python
-from returns.result import Failure, Success
+from returns.result import Failure, Result, Success
 
 from .models import Person
 
 
 def get_person_name(person_id):
-    result: Result = Person.objects.get_safe(id=person_id)
+    result: Result = Person.objects.get_result(id=person_id)
 
     match result:
         case Success(person):
@@ -70,7 +70,7 @@ def get_person_name(person_id):
 
 ## Async Methods
 
-Async `*_safe` methods return an IO-wrapped result (`IOSuccess` / `IOFailure`).
+Async `*_ioresult` methods return an IO-wrapped result (`IOSuccess` / `IOFailure`).
 
 ```python
 from django_returns.utils import unsafe_perform_io
@@ -80,7 +80,7 @@ from .models import Person
 
 
 async def get_person_id_async(name):
-    io_result = await Person.objects.aget_safe(name=name)
+    io_result = await Person.objects.aget_ioresult(name=name)
     result = unsafe_perform_io(io_result)
 
     match result:
