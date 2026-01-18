@@ -78,7 +78,9 @@ class IncrementedReturnsQuerySet(BaseReturnsQuerySet):
             for prefix in ("", "a"):
                 method_name = prefix + name
                 original_method = getattr(self, method_name)
-                new_method_name = method_name + ("_result" if prefix == "" else "_ioresult")
+                new_method_name = method_name + (
+                    "_result" if prefix == "" else "_ioresult"
+                )
                 wrapper = safe if prefix == "" else future_safe
                 setattr(self, new_method_name, wrapper(original_method))
 
