@@ -12,15 +12,15 @@ from tests.models import Person
 
 @pytest.mark.django_db
 class TestGetMethods:
-    def test_get_safe_success(self):
+    def test_get_result_success(self):
         obj = Person.objects.create(name="test", dob=date(2020, 1, 1))
-        result = Person.objects.get_safe(name="test")
+        result = Person.objects.get_result(name="test")
 
         assert isinstance(result, Success)
         assert result.unwrap() == obj
 
-    def test_get_safe_failure(self):
-        result = Person.objects.get_safe(name="nonexistent")
+    def test_get_result_failure(self):
+        result = Person.objects.get_result(name="nonexistent")
 
         assert isinstance(result, Failure)
         assert isinstance(result.failure(), Person.DoesNotExist)
@@ -28,32 +28,32 @@ class TestGetMethods:
 
 @pytest.mark.django_db
 class TestEarliestLatestMethods:
-    def test_earliest_safe_success(self):
+    def test_earliest_result_success(self):
         obj1 = Person.objects.create(name="test1", dob=date(2020, 1, 1))
         Person.objects.create(name="test2", dob=date(2021, 1, 1))
 
-        result = Person.objects.earliest_safe("dob")
+        result = Person.objects.earliest_result("dob")
 
         assert isinstance(result, Success)
         assert result.unwrap() == obj1
 
-    def test_earliest_safe_failure(self):
-        result = Person.objects.earliest_safe("dob")
+    def test_earliest_result_failure(self):
+        result = Person.objects.earliest_result("dob")
 
         assert isinstance(result, Failure)
         assert isinstance(result.failure(), Person.DoesNotExist)
 
-    def test_latest_safe_success(self):
+    def test_latest_result_success(self):
         Person.objects.create(name="test1", dob=date(2020, 1, 1))
         obj2 = Person.objects.create(name="test2", dob=date(2021, 1, 1))
 
-        result = Person.objects.latest_safe("dob")
+        result = Person.objects.latest_result("dob")
 
         assert isinstance(result, Success)
         assert result.unwrap() == obj2
 
-    def test_latest_safe_failure(self):
-        result = Person.objects.latest_safe("dob")
+    def test_latest_result_failure(self):
+        result = Person.objects.latest_result("dob")
 
         assert isinstance(result, Failure)
         assert isinstance(result.failure(), Person.DoesNotExist)
@@ -61,15 +61,15 @@ class TestEarliestLatestMethods:
 
 @pytest.mark.django_db
 class TestCreateMethods:
-    def test_create_safe_success(self):
-        result = Person.objects.create_safe(name="test", dob=date(2020, 1, 1))
+    def test_create_result_success(self):
+        result = Person.objects.create_result(name="test", dob=date(2020, 1, 1))
 
         assert isinstance(result, Success)
         assert Person.objects.count() == 1
 
-    def test_create_safe_failure(self):
+    def test_create_result_failure(self):
         Person.objects.create(name="test", dob=date(2020, 1, 1))
-        result = Person.objects.create_safe(name="test", dob=date(2021, 1, 1))
+        result = Person.objects.create_result(name="test", dob=date(2021, 1, 1))
 
         assert isinstance(result, Failure)
         assert isinstance(result.failure(), IntegrityError)
@@ -77,9 +77,9 @@ class TestCreateMethods:
 
 @pytest.mark.django_db
 class TestGetOrCreateMethods:
-    def test_get_or_create_safe_get(self):
+    def test_get_or_create_result_get(self):
         existing = Person.objects.create(name="test", dob=date(2020, 1, 1))
-        result = Person.objects.get_or_create_safe(
+        result = Person.objects.get_or_create_result(
             name="test", defaults={"dob": date(2021, 1, 1)}
         )
 
@@ -88,8 +88,8 @@ class TestGetOrCreateMethods:
         assert obj == existing
         assert created is False
 
-    def test_get_or_create_safe_create(self):
-        result = Person.objects.get_or_create_safe(
+    def test_get_or_create_result_create(self):
+        result = Person.objects.get_or_create_result(
             name="test", defaults={"dob": date(2020, 1, 1)}
         )
 
@@ -100,9 +100,9 @@ class TestGetOrCreateMethods:
 
 @pytest.mark.django_db
 class TestUpdateOrCreateMethods:
-    def test_update_or_create_safe_update(self):
+    def test_update_or_create_result_update(self):
         _ = Person.objects.create(name="test", dob=date(2020, 1, 1))
-        result = Person.objects.update_or_create_safe(
+        result = Person.objects.update_or_create_result(
             name="test", defaults={"dob": date(2021, 1, 1)}
         )
 
@@ -111,8 +111,8 @@ class TestUpdateOrCreateMethods:
         assert obj.dob == date(2021, 1, 1)
         assert created is False
 
-    def test_update_or_create_safe_create(self):
-        result = Person.objects.update_or_create_safe(
+    def test_update_or_create_result_create(self):
+        result = Person.objects.update_or_create_result(
             name="test", defaults={"dob": date(2020, 1, 1)}
         )
 
@@ -123,11 +123,11 @@ class TestUpdateOrCreateMethods:
 
 @pytest.mark.django_db
 class TestDeleteMethods:
-    def test_delete_safe_success(self):
+    def test_delete_result_success(self):
         Person.objects.create(name="test1", dob=date(2020, 1, 1))
         Person.objects.create(name="test2", dob=date(2021, 1, 1))
 
-        result = Person.objects.filter(name="test1").delete_safe()
+        result = Person.objects.filter(name="test1").delete_result()
 
         assert isinstance(result, Success)
         assert Person.objects.count() == 1
@@ -135,25 +135,25 @@ class TestDeleteMethods:
 
 @pytest.mark.django_db
 class TestBulkCreateMethods:
-    def test_bulk_create_safe_success(self):
+    def test_bulk_create_result_success(self):
         objects = [
             Person(name="test1", dob=date(2020, 1, 1)),
             Person(name="test2", dob=date(2021, 1, 1)),
         ]
 
-        result = Person.objects.bulk_create_safe(objects)
+        result = Person.objects.bulk_create_result(objects)
 
         assert isinstance(result, Success)
         assert Person.objects.count() == 2
 
-    def test_bulk_create_safe_failure(self):
+    def test_bulk_create_result_failure(self):
         Person.objects.create(name="test1", dob=date(2020, 1, 1))
         objects = [
             Person(name="test1", dob=date(2020, 1, 1)),  # Duplicate
             Person(name="test2", dob=date(2021, 1, 1)),
         ]
 
-        result = Person.objects.bulk_create_safe(objects)
+        result = Person.objects.bulk_create_result(objects)
 
         assert isinstance(result, Failure)
 
@@ -192,15 +192,15 @@ class TestMaybeMethods:
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.asyncio
 class TestAsyncGetMethods:
-    async def test_aget_safe_success(self):
+    async def test_aget_ioresult_success(self):
         obj = await Person.objects.acreate(name="async_test", dob=date(2020, 1, 1))
-        result = await Person.objects.aget_safe(name="async_test")
+        result = await Person.objects.aget_ioresult(name="async_test")
 
         assert isinstance(result, IOSuccess)
         assert unsafe_perform_io(result).unwrap() == obj
 
-    async def test_aget_safe_failure(self):
-        result = await Person.objects.aget_safe(name="nonexistent")
+    async def test_aget_ioresult_failure(self):
+        result = await Person.objects.aget_ioresult(name="nonexistent")
 
         assert isinstance(result, IOFailure)
         assert isinstance(unsafe_perform_io(result).failure(), Person.DoesNotExist)
@@ -209,33 +209,33 @@ class TestAsyncGetMethods:
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.asyncio
 class TestAsyncEarliestLatestMethods:
-    async def test_aearliest_safe_success(self):
+    async def test_aearliest_ioresult_success(self):
         obj1 = await Person.objects.acreate(
             name="async_earliest1", dob=date(2020, 1, 1)
         )
         await Person.objects.acreate(name="async_earliest2", dob=date(2021, 1, 1))
 
-        result = await Person.objects.aearliest_safe("dob")
+        result = await Person.objects.aearliest_ioresult("dob")
 
         assert isinstance(result, IOSuccess)
         assert unsafe_perform_io(result).unwrap() == obj1
 
-    async def test_aearliest_safe_failure(self):
-        result = await Person.objects.aearliest_safe("dob")
+    async def test_aearliest_ioresult_failure(self):
+        result = await Person.objects.aearliest_ioresult("dob")
 
         assert isinstance(result, IOFailure)
 
-    async def test_alatest_safe_success(self):
+    async def test_alatest_ioresult_success(self):
         await Person.objects.acreate(name="async_latest1", dob=date(2020, 1, 1))
         obj2 = await Person.objects.acreate(name="async_latest2", dob=date(2021, 1, 1))
 
-        result = await Person.objects.alatest_safe("dob")
+        result = await Person.objects.alatest_ioresult("dob")
 
         assert isinstance(result, IOSuccess)
         assert unsafe_perform_io(result).unwrap() == obj2
 
-    async def test_alatest_safe_failure(self):
-        result = await Person.objects.alatest_safe("dob")
+    async def test_alatest_ioresult_failure(self):
+        result = await Person.objects.alatest_ioresult("dob")
 
         assert isinstance(result, IOFailure)
 
@@ -243,8 +243,8 @@ class TestAsyncEarliestLatestMethods:
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.asyncio
 class TestAsyncCreateMethods:
-    async def test_acreate_safe_success(self):
-        result = await Person.objects.acreate_safe(
+    async def test_acreate_ioresult_success(self):
+        result = await Person.objects.acreate_ioresult(
             name="async_create", dob=date(2020, 1, 1)
         )
 
@@ -252,9 +252,9 @@ class TestAsyncCreateMethods:
         obj = unsafe_perform_io(result).unwrap()
         assert obj.name == "async_create"
 
-    async def test_acreate_safe_failure(self):
+    async def test_acreate_ioresult_failure(self):
         await Person.objects.acreate(name="duplicate_async", dob=date(2020, 1, 1))
-        result = await Person.objects.acreate_safe(
+        result = await Person.objects.acreate_ioresult(
             name="duplicate_async", dob=date(2021, 1, 1)
         )
 
@@ -265,11 +265,11 @@ class TestAsyncCreateMethods:
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.asyncio
 class TestAsyncGetOrCreateMethods:
-    async def test_aget_or_create_safe_get(self):
+    async def test_aget_or_create_ioresult_get(self):
         existing = await Person.objects.acreate(
             name="existing_async", dob=date(2020, 1, 1)
         )
-        result = await Person.objects.aget_or_create_safe(
+        result = await Person.objects.aget_or_create_ioresult(
             name="existing_async", defaults={"dob": date(2021, 1, 1)}
         )
 
@@ -278,8 +278,8 @@ class TestAsyncGetOrCreateMethods:
         assert obj == existing
         assert created is False
 
-    async def test_aget_or_create_safe_create(self):
-        result = await Person.objects.aget_or_create_safe(
+    async def test_aget_or_create_ioresult_create(self):
+        result = await Person.objects.aget_or_create_ioresult(
             name="new_async", defaults={"dob": date(2020, 1, 1)}
         )
 
@@ -292,11 +292,11 @@ class TestAsyncGetOrCreateMethods:
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.asyncio
 class TestAsyncUpdateOrCreateMethods:
-    async def test_aupdate_or_create_safe_update(self):
+    async def test_aupdate_or_create_ioresult_update(self):
         existing = await Person.objects.acreate(
             name="update_me_async", dob=date(2020, 1, 1)
         )
-        result = await Person.objects.aupdate_or_create_safe(
+        result = await Person.objects.aupdate_or_create_ioresult(
             name="update_me_async", defaults={"dob": date(2021, 1, 1)}
         )
 
@@ -306,8 +306,8 @@ class TestAsyncUpdateOrCreateMethods:
         assert obj.dob == date(2021, 1, 1)
         assert created is False
 
-    async def test_aupdate_or_create_safe_create(self):
-        result = await Person.objects.aupdate_or_create_safe(
+    async def test_aupdate_or_create_ioresult_create(self):
+        result = await Person.objects.aupdate_or_create_ioresult(
             name="create_new_async", defaults={"dob": date(2020, 1, 1)}
         )
 
@@ -320,12 +320,11 @@ class TestAsyncUpdateOrCreateMethods:
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.asyncio
 class TestAsyncDeleteMethods:
-    async def test_adelete_safe_success(self):
+    async def test_adelete_ioresult_success(self):
         await Person.objects.acreate(name="delete1_async", dob=date(2020, 1, 1))
         await Person.objects.acreate(name="delete2_async", dob=date(2021, 1, 1))
 
-        result = await Person.objects.filter(name="delete1_async").adelete_safe()
-
+        result = await Person.objects.filter(name="delete1_async").adelete_ioresult()
         assert isinstance(result, IOSuccess)
         deleted_count, _ = unsafe_perform_io(result).unwrap()
         assert deleted_count == 1
@@ -334,27 +333,27 @@ class TestAsyncDeleteMethods:
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.asyncio
 class TestAsyncBulkCreateMethods:
-    async def test_abulk_create_safe_success(self):
+    async def test_abulk_create_ioresult_success(self):
         objects = [
             Person(name="bulk1_async", dob=date(2020, 1, 1)),
             Person(name="bulk2_async", dob=date(2021, 1, 1)),
             Person(name="bulk3_async", dob=date(2022, 1, 1)),
         ]
 
-        result = await Person.objects.abulk_create_safe(objects)
+        result = await Person.objects.abulk_create_ioresult(objects)
 
         assert isinstance(result, IOSuccess)
         created = unsafe_perform_io(result).unwrap()
         assert len(created) == 3
 
-    async def test_abulk_create_safe_failure(self):
+    async def test_abulk_create_ioresult_failure(self):
         await Person.objects.acreate(name="bulk1_fail_async", dob=date(2020, 1, 1))
         objects = [
             Person(name="bulk1_fail_async", dob=date(2020, 1, 1)),  # Duplicate
             Person(name="bulk2_fail_async", dob=date(2021, 1, 1)),
         ]
 
-        result = await Person.objects.abulk_create_safe(objects)
+        result = await Person.objects.abulk_create_ioresult(objects)
 
         assert isinstance(result, IOFailure)
         assert isinstance(unsafe_perform_io(result).failure(), IntegrityError)

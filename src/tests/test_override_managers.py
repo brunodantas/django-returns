@@ -15,7 +15,7 @@ class SafePerson(models.Model):
     name = models.CharField(max_length=100, unique=True)
     dob = models.DateField()
 
-    objects = ReturnsManager(override_with_safe=True)
+    objects = ReturnsManager(override_with="safe")
 
     class Meta:
         app_label = "tests"
@@ -25,7 +25,7 @@ class ImpurePerson(models.Model):
     name = models.CharField(max_length=100, unique=True)
     dob = models.DateField()
 
-    objects = ReturnsManager(override_with_impure=True)
+    objects = ReturnsManager(override_with="impure")
 
     class Meta:
         app_label = "tests"
