@@ -1,5 +1,3 @@
-from typing import Literal
-
 from django.db.models import Manager, QuerySet
 from returns.future import future_safe
 from returns.io import impure_safe
@@ -62,7 +60,7 @@ class ImpureReturnsQuerySet(MaybeReturnsQuerySet):
 
 
 class ExtendedReturnsQuerySet(BaseReturnsQuerySet):
-    """A subclass that includes safe versions (ending with _safe)
+    """A subclass that includes safe versions (ending with _result or _ioresult)
     of unsafe methods that can be used separately from the original methods."""
 
     def __init__(
@@ -74,15 +72,14 @@ class ExtendedReturnsQuerySet(BaseReturnsQuerySet):
         super().__init__(*args, **kwargs)
 
         for name in BaseReturnsQuerySet.UNSAFE_METHODS:
-            # Apply for sync and async versions
-            for prefix in ("", "a"):
-                method_name = prefix + name
-                original_method = getattr(self, method_name)
-                new_method_name = method_name + (
-                    "_result" if prefix == "" else "_ioresult"
-                )
-                wrapper = safe if prefix == "" else future_safe
-                setattr(self, new_method_name, wrapper(original_method))
+            # Sync methods: create both _result and _ioresult variants
+            sync_method = getattr(self, name)
+            setattr(self, name + "_result", safe(sync_method))
+            setattr(self, name + "_ioresult", impure_safe(sync_method))
+
+            # Async methods
+            async_method = getattr(self, "a" + name)
+            setattr(self, "a" + name + "_ioresult", future_safe(async_method))
 
     @maybe
     def first_maybe(self, *args, **kwargs):
@@ -100,19 +97,12 @@ class ReturnsManager(Manager):
 
     def __init__(
         self,
-        override_with: Literal["safe", "impure", None] = None,
         *args,
         **kwargs,
     ):
-        self._override_with = override_with
         super().__init__(*args, **kwargs)
 
     def get_queryset(self):
-        if self._override_with == "safe":
-            return SafeReturnsQuerySet(self.model, using=self._db)
-        if self._override_with == "impure":
-            return ImpureReturnsQuerySet(self.model, using=self._db)
-
         return ExtendedReturnsQuerySet(self.model, using=self._db)
 
     def __getattr__(self, name):
