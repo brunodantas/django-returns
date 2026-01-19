@@ -1,0 +1,68 @@
+site_name: django-returns
+site_url: https://brunodantas.github.io/django-returns
+
+repo_url: https://github.com/brunodantas/django-returns
+repo_name: brunodantas/django-returns
+
+nav:
+  - Quickstart: index.md
+
+theme:
+  name: material
+  icon:
+    logo: material/function-variant
+
+  features:
+    - content.code.copy
+    - navigation.footer
+    - navigation.instant
+    - navigation.top
+
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default 
+      primary: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+plugins:
+  - social
+
+extra:
+  homepage: .
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/brunodantas/django-returns
+      name: GitHub
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+extra_css:
+  - stylesheets/extra.css
