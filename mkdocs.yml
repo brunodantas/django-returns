@@ -5,7 +5,10 @@ repo_url: https://github.com/brunodantas/django-returns
 repo_name: brunodantas/django-returns
 
 nav:
-  - Quickstart: index.md
+  - Quick Look: index.md
+  - Getting Started: getting-started.md
+  - Async Methods: async-io.md
+  - API Reference: api.md
 
 theme:
   name: material
@@ -42,6 +45,7 @@ theme:
 
 plugins:
   - social
+  - macros
 
 extra:
   homepage: .
