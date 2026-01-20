@@ -1,5 +1,6 @@
 site_name: django-returns
 site_url: https://brunodantas.github.io/django-returns
+site_description: Meaningful Django utils based on Functional Programming
 
 repo_url: https://github.com/brunodantas/django-returns
 repo_name: brunodantas/django-returns
@@ -44,7 +45,11 @@ theme:
         name: Switch to system preference
 
 plugins:
-  - social
+  - social:
+      enabled: !ENV [CI, false]
+      cards_layout_options:
+        background_color: "#0D9488"
+        color: "#ffffff"
   - macros
 
 extra:
