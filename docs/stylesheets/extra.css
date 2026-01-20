@@ -3,9 +3,9 @@
 }
 
 [data-md-color-scheme="default"] {
-  --md-default-bg-color:          #F1F5F9; /* Slate 50 */
-  --md-default-bg-color--light:   #E7E5E4; /* Slate 100 (Sidebars/Search) */
-  --md-code-bg-color:             #F1F5F9; 
+  --md-default-bg-color:          #F1F5F9; /* Slate 100 */
+  --md-default-bg-color--light:   #E7E5E4; /* Stone 200 (Sidebars/Search) */
+  --md-code-bg-color:             #E2E8F0; /* Slate 200 */
   --md-typeset-color:             #1E293B; /* Deep Charcoal Text */
 }
 
