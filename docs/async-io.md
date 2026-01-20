@@ -14,11 +14,12 @@ With this:
 Use an explicit boundary where you decide to “run” effects:
 
 ```python
+from returns.future import FutureResult
 from returns.io import IOResult, unsafe_perform_io
 from returns.result import Result
 
-
-io_result: IOResult = await Person.objects.aget_ioresult(name="Guido")
+future_result: FutureResult = Person.objects.aget_ioresult(name="Guido")
+io_result: IOResult = await future_result
 result = unsafe_perform_io(io_result)
 assert isinstance(result, Result)
 ```

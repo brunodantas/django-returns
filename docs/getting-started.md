@@ -14,8 +14,8 @@ pip install django-returns
 
 There are currently two options for using the safe ORM methods.
 
-- Subclassing `ReturnsManager`
-- Subclassing `ReturnsModel`
+- Using `ReturnsManager`
+- Using `ReturnsModel`
 
 Note that the second option comes with more functionality.
 
@@ -31,9 +31,11 @@ which are defined as follows.
 Example:
 
 ```python
+from datetime import date
+
 from django.db import models
 from django_returns.managers import ReturnsManager
-from returns.result import Failure, Success
+from returns.result import Success
 
 
 class Person(models.Model):
@@ -55,17 +57,20 @@ plus `model.*_result` methods for `save`, `delete` etc.
 Example:
 
 ```python
+from datetime import date
+
 from django.db import models
 from django_returns.models import ReturnsModel
-from returns.result import Failure, Success
+from returns.result import Success
 
 
 class Person(ReturnsModel):
     name = models.CharField(max_length=255, unique=True)
+    dob = models.DateField()
 
 
 creation_result = Person.objects.create_result(name="test", dob=date(2020, 1, 1))
-person = result.unwrap()
+person = creation_result.unwrap()
 deletion_result = person.delete_result()
 assert isinstance(deletion_result, Success)
 ```
