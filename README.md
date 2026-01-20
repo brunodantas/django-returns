@@ -22,6 +22,14 @@ pip install django-returns
 `returns` containers when you want explicit success/failure return types
 instead of exceptions.
 
+## Why
+
+To bring the benefits of Functional Programming to the Django world.
+
+- Improved predictability, understandability, maintainability.
+- Safer code with type checking.
+- Better error handling.
+
 ## How
 
 By subclassing `QuerySet` and applying `returns` decorators to its methods.
