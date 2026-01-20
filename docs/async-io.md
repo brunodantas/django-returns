@@ -1,7 +1,7 @@
 # Async Methods
 
 Keeping the pattern established by `returns`, `django-returns`' Async ORM calls
-make IO operations explicit by returning IO-tracked containers.
+make IO operations explicit by **returning IO-tracked containers**.
 
 With this:
 
@@ -11,7 +11,7 @@ With this:
 
 ## Unwrapping `IOResult`
 
-Use an explicit boundary where you decide to “run” effects:
+Use an explicit boundary where you decide to "run" effects:
 
 ```python
 from returns.future import FutureResult
